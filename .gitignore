@@ -1,0 +1,13 @@
+# Node modules
+client/node_modules
+client/.gitignore
+
+server/node_modules
+server/.gitignore
+
+client/dist
+server/dist
+
+*.env
+
+*.log
