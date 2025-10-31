@@ -15,7 +15,8 @@ How to run the project ?
         - git (will be required to clone the project from github)
 
     Download the project from Github:
-        git clone https://github.com/19mukul11/cricheroes_assignment.git
+        git clone https://github.com/19mukul11/cricheroes_assignment.git 
+        If you face any issue for fetching the project from Github, use the zip folder of the project i have provided in the email.
 
     Now,  after the project is successfully downloaded in your local machine, open Terminal/command line tool in the project root directory.
 
@@ -31,3 +32,7 @@ How to run the project ?
             cd client
             npm install   (This will install all the packages and dependencies for the client project)
             npm run dev  (This will start the frontend module on this path:   http://localhost:5173  )
+
+    Type http://localhost:5173 in browser, and you will be able to see the project home screen.
+
+    Please feel free to connect with me on mukulmahajan2000@gmail.com in case of any issues. 
