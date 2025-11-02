@@ -183,8 +183,6 @@ function computeNRRBowlFirst(formData, responseData) {
             withinUpperLimit = upperBoundNRR ? tempNRR < upperBoundNRR : true;
             withinLowerLimit = lowerBoundNRR ? tempNRR > lowerBoundNRR : true;
 
-            console.log(i, ' ', tempNRR,' ', lowerBoundNRR, ' ', upperBoundNRR);
-            
             if (tempNRR >= targetNRR && minOversForChase == null) {
                 if (withinLowerLimit && withinUpperLimit) {
                     maxNRR = tempNRR;
@@ -242,9 +240,17 @@ function convertBallsToOvers(balls) {
 }
 
 function addOvers(overs, balls) {
-    let wholeOvers = overs + Math.floor(balls / 6);
-    let remainingBalls = balls % 6;
-    return parseFloat(wholeOvers + '.' + remainingBalls);
+    let [wholePart, decimalPart] = overs.toString().split('.');
+    wholePart = parseInt(wholePart, 10);
+    decimalPart = parseInt(decimalPart, 10);
+
+    wholePart = wholePart + Math.floor(balls / 6);
+    let remainingBalls = decimalPart + (balls % 6);
+    if (remainingBalls >= 6) {
+        wholePart += Math.floor(remainingBalls / 6);
+        remainingBalls = remainingBalls % 6;
+    }
+    return parseFloat(wholePart + '.' + remainingBalls);
 }
 
 module.exports = {
