@@ -81,6 +81,11 @@ function computeNRRBatFirst(formData, responseData) {
         }
     }
 
+    if (maxRunsToConcede == null) {
+        maxRunsToConcede = runsScored;
+        minNRR = computeRunRate(totalRunsScored, totalOversFaced, totalRunsConceded + runsScored, totalOversBowled + matchOvers);
+    }
+
     if (minRunsToConcede == null) {
         responseData.statusCode = 200;
         responseData.data = {
@@ -141,7 +146,7 @@ function computeNRRBowlFirst(formData, responseData) {
             withinUpperLimit = upperBoundNRR ? tempNRR < upperBoundNRR : true;
             withinLowerLimit = lowerBoundNRR ? tempNRR > lowerBoundNRR : true;
 
-             if (tempNRR >= targetNRR && minOversForChase == null) {
+            if (tempNRR >= targetNRR && minOversForChase == null) {
                 if (withinLowerLimit && withinUpperLimit) {
                     maxNRR = tempNRR;
                     minOversForChase = convertBallsToOvers(i);
@@ -175,6 +180,11 @@ function computeNRRBowlFirst(formData, responseData) {
         }
     }
 
+    if (maxOversForChase == null) {
+        maxOversForChase = matchOvers;
+        minNRR = computeRunRate(totalRunsScored + runstoChase, totalOversFaced + matchOvers, totalRunsConceded, totalOversBowled);
+    }
+
     if (minOversForChase == null) {
         responseData.statusCode = 200;
         responseData.data = {
@@ -203,7 +213,7 @@ function computeRunRate(runsScored, oversFaced, runsConceded, oversBowled) {
 function convertOversToBalls(overs) {
     const wholeOvers = Math.floor(overs);
     const balls = Math.round((overs - wholeOvers) * 10);
-    return wholeOvers + (balls / 6);
+    return (wholeOvers * 6) + balls;
 }
 
 function convertBallsToOvers(balls) {

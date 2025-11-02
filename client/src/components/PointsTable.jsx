@@ -40,6 +40,8 @@ const PointsTable = () => {
                             <th>Won</th>
                             <th>Lost</th>
                             <th>Points</th>
+                            <th>For</th>
+                            <th>Against</th>
                             <th>NRR</th>
                         </tr>
                     </thead>
@@ -53,6 +55,8 @@ const PointsTable = () => {
                                     <td>{record.won}</td>
                                     <td>{record.lost}</td>
                                     <td>{record.points}</td>
+                                    <td>{record.for.runs}/{record.for.overs}</td>
+                                    <td>{record.against.runs}/{record.against.overs}</td>
                                     <td>{record.nrr}</td>
                                 </tr>)
                             })
