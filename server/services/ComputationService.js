@@ -30,16 +30,17 @@ function computeNRRBatFirst(formData, responseData) {
     if (desiredPosition < 8) {
         lowerBoundNRR = getTeamByPosition(desiredPosition + 1).nrr
     }
+
     var tempNRR = null;
     let withinUpperLimit = null;
     let withinLowerLimit = null;
 
-    if (opponentTeam.key == desiredPositionTeam.key) {
-        const opponentTotalRunsScored = opponentTeam.for.runs;
-        const opponentTotalOversFaced = opponentTeam.for.overs;
-        const opponentTotalRunsConceded = opponentTeam.against.runs + runsScored;
-        const opponentTotalOversBowled = opponentTeam.against.overs + matchOvers;
+    const opponentTotalRunsScored = opponentTeam.for.runs;
+    const opponentTotalOversFaced = opponentTeam.for.overs;
+    const opponentTotalRunsConceded = opponentTeam.against.runs + runsScored;
+    const opponentTotalOversBowled = opponentTeam.against.overs + matchOvers;
 
+    if (opponentTeam.key == desiredPositionTeam.key) {
         for (let i = 0; i <= runsScored; i++) {
             tempNRR = computeRunRate(totalRunsScored, totalOversFaced, totalRunsConceded + i, totalOversBowled + matchOvers);
             targetNRR = computeRunRate(opponentTotalRunsScored + i, opponentTotalOversFaced + matchOvers, opponentTotalRunsConceded, opponentTotalOversBowled);   // Opponent NRR
@@ -64,6 +65,14 @@ function computeNRRBatFirst(formData, responseData) {
         targetNRR = desiredPositionTeam.nrr;
         for (let i = 0; i <= runsScored; i++) {
             tempNRR = computeRunRate(totalRunsScored, totalOversFaced, totalRunsConceded + i, totalOversBowled + matchOvers);
+
+            if (opponentTeam.key == getTeamByPosition(desiredPosition - 1).key) {
+                upperBoundNRR = computeRunRate(opponentTotalRunsScored + i, opponentTotalOversFaced + matchOvers, opponentTotalRunsConceded, opponentTotalOversBowled);
+            }
+            if (opponentTeam.key == getTeamByPosition(desiredPosition + 1).key) {
+                lowerBoundNRR = computeRunRate(opponentTotalRunsScored + i, opponentTotalOversFaced + matchOvers, opponentTotalRunsConceded, opponentTotalOversBowled);
+            }
+
             withinUpperLimit = upperBoundNRR ? tempNRR < upperBoundNRR : true;
             withinLowerLimit = lowerBoundNRR ? tempNRR > lowerBoundNRR : true;
 
@@ -82,8 +91,8 @@ function computeNRRBatFirst(formData, responseData) {
     }
 
     if (maxRunsToConcede == null) {
-        maxRunsToConcede = runsScored;
-        minNRR = computeRunRate(totalRunsScored, totalOversFaced, totalRunsConceded + runsScored, totalOversBowled + matchOvers);
+        maxRunsToConcede = runsScored - 1;
+        minNRR = computeRunRate(totalRunsScored, totalOversFaced, totalRunsConceded + (runsScored - 1), totalOversBowled + matchOvers);
     }
 
     if (minRunsToConcede == null) {
@@ -133,15 +142,15 @@ function computeNRRBowlFirst(formData, responseData) {
     let withinUpperLimit = null;
     let withinLowerLimit = null;
 
-    if (opponentTeam.key == desiredPositionTeam.key) {
-        const opponentTotalRunsScored = opponentTeam.for.runs + (runstoChase - 1);
-        const opponentTotalOversFaced = opponentTeam.for.overs + matchOvers;
-        const opponentTotalRunsConceded = opponentTeam.against.runs;
-        const opponentTotalOversBowled = opponentTeam.against.overs;
+    const opponentTotalRunsScored = opponentTeam.for.runs + (runstoChase - 1);
+    const opponentTotalOversFaced = opponentTeam.for.overs + matchOvers;
+    const opponentTotalRunsConceded = opponentTeam.against.runs;
+    const opponentTotalOversBowled = opponentTeam.against.overs;
 
+    if (opponentTeam.key == desiredPositionTeam.key) {
         for (let i = 1; i <= (matchOvers * 6); i++) {
-            tempNRR = computeRunRate(totalRunsScored + runstoChase, totalOversFaced + i, totalRunsConceded, totalOversBowled);
-            targetNRR = computeRunRate(opponentTotalRunsScored, opponentTotalOversFaced, opponentTotalRunsConceded + runstoChase, opponentTotalOversBowled + i);   // Opponent NRR
+            tempNRR = computeRunRate(totalRunsScored + runstoChase, addOvers(totalOversFaced, i), totalRunsConceded, totalOversBowled);
+            targetNRR = computeRunRate(opponentTotalRunsScored, opponentTotalOversFaced, opponentTotalRunsConceded + runstoChase, addOvers(opponentTotalOversBowled, i));   // Opponent NRR
 
             withinUpperLimit = upperBoundNRR ? tempNRR < upperBoundNRR : true;
             withinLowerLimit = lowerBoundNRR ? tempNRR > lowerBoundNRR : true;
@@ -152,7 +161,7 @@ function computeNRRBowlFirst(formData, responseData) {
                     minOversForChase = convertBallsToOvers(i);
                 }
             } else if (tempNRR < targetNRR && maxOversForChase == null && minOversForChase != null) {
-                tempNRR = computeRunRate(totalRunsScored + runstoChase, totalOversFaced + i - 1, totalRunsConceded, totalOversBowled);
+                tempNRR = computeRunRate(totalRunsScored + runstoChase, addOvers(totalOversFaced, (i - 1)), totalRunsConceded, totalOversBowled);
                 minNRR = tempNRR;
                 maxOversForChase = convertBallsToOvers(i - 1);
                 break;
@@ -162,17 +171,27 @@ function computeNRRBowlFirst(formData, responseData) {
     } else {
         targetNRR = desiredPositionTeam.nrr;
         for (let i = 1; i <= (matchOvers * 6); i++) {
-            tempNRR = computeRunRate(totalRunsScored + runstoChase, totalOversFaced + i, totalRunsConceded, totalOversBowled);
+            tempNRR = computeRunRate(totalRunsScored + runstoChase, addOvers(totalOversFaced, i), totalRunsConceded, totalOversBowled);
+
+            if (opponentTeam.key == getTeamByPosition(desiredPosition - 1).key) {
+                upperBoundNRR = computeRunRate(opponentTotalRunsScored, opponentTotalOversFaced, opponentTotalRunsConceded + runstoChase, addOvers(opponentTotalOversBowled, i));
+            }
+            if (opponentTeam.key == getTeamByPosition(desiredPosition + 1).key) {
+                lowerBoundNRR = computeRunRate(opponentTotalRunsScored, opponentTotalOversFaced, opponentTotalRunsConceded + runstoChase, addOvers(opponentTotalOversBowled, i));
+            }
+
             withinUpperLimit = upperBoundNRR ? tempNRR < upperBoundNRR : true;
             withinLowerLimit = lowerBoundNRR ? tempNRR > lowerBoundNRR : true;
 
+            console.log(i, ' ', tempNRR,' ', lowerBoundNRR, ' ', upperBoundNRR);
+            
             if (tempNRR >= targetNRR && minOversForChase == null) {
                 if (withinLowerLimit && withinUpperLimit) {
                     maxNRR = tempNRR;
                     minOversForChase = convertBallsToOvers(i);
                 }
             } else if (tempNRR < targetNRR && maxOversForChase == null && minOversForChase != null) {
-                tempNRR = computeRunRate(totalRunsScored + runstoChase, totalOversFaced + (i - 1), totalRunsConceded, totalOversBowled);
+                tempNRR = computeRunRate(totalRunsScored + runstoChase, addOvers(totalOversFaced, (i - 1)), totalRunsConceded, totalOversBowled);
                 minNRR = tempNRR;
                 maxOversForChase = convertBallsToOvers(i - 1);
                 break;
@@ -203,22 +222,28 @@ function computeNRRBowlFirst(formData, responseData) {
 
 // Some utility methods
 function computeRunRate(runsScored, oversFaced, runsConceded, oversBowled) {
-    const battingRunRate = runsScored / convertOversToBalls(oversFaced);
-    const bowlingRunRate = runsConceded / convertOversToBalls(oversBowled);
+    const battingRunRate = runsScored / convertOversForNRR(oversFaced);
+    const bowlingRunRate = runsConceded / convertOversForNRR(oversBowled);
 
     const netRunRate = battingRunRate - bowlingRunRate;
     return Math.round(netRunRate * 1000) / 1000;
 }
 
-function convertOversToBalls(overs) {
+function convertOversForNRR(overs) {
     const wholeOvers = Math.floor(overs);
     const balls = Math.round((overs - wholeOvers) * 10);
-    return (wholeOvers * 6) + balls;
+    return (wholeOvers + balls / 6);
 }
 
 function convertBallsToOvers(balls) {
     const wholeOvers = Math.floor(balls / 6);
     const remainingBalls = balls % 6;
+    return parseFloat(wholeOvers + '.' + remainingBalls);
+}
+
+function addOvers(overs, balls) {
+    let wholeOvers = overs + Math.floor(balls / 6);
+    let remainingBalls = balls % 6;
     return parseFloat(wholeOvers + '.' + remainingBalls);
 }
 
