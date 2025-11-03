@@ -111,7 +111,8 @@ function computeNRRBatFirst(formData, responseData) {
 }
 
 function computeNRRBowlFirst(formData, responseData) {
-    const runstoChase = formData.runs;
+    const opponentBattingFirstScore = formData.runs;
+    const runstoChase = opponentBattingFirstScore + 1;
     const matchOvers = oversFaced = formData.overs;
     const desiredPosition = formData.desiredPosition;
 
@@ -121,7 +122,7 @@ function computeNRRBowlFirst(formData, responseData) {
 
     const totalRunsScored = team.for.runs;
     const totalOversFaced = team.for.overs;
-    const totalRunsConceded = team.against.runs + runstoChase - 1;
+    const totalRunsConceded = team.against.runs + opponentBattingFirstScore;
     const totalOversBowled = team.against.overs + matchOvers;
 
     let targetNRR = desiredPositionTeam.nrr;
@@ -142,7 +143,7 @@ function computeNRRBowlFirst(formData, responseData) {
     let withinUpperLimit = null;
     let withinLowerLimit = null;
 
-    const opponentTotalRunsScored = opponentTeam.for.runs + (runstoChase - 1);
+    const opponentTotalRunsScored = opponentTeam.for.runs + opponentBattingFirstScore;
     const opponentTotalOversFaced = opponentTeam.for.overs + matchOvers;
     const opponentTotalRunsConceded = opponentTeam.against.runs;
     const opponentTotalOversBowled = opponentTeam.against.overs;
